@@ -83,9 +83,9 @@ new_iso_name="ubuntu-$xenn-server-amd64-unattended.iso"
 # ask the user questions about his/her preferences
 read -ep " please enter your preferred timezone: " -i "Europe/Copenhagen" timezone
 read -ep " please enter your preferred username: " -i "paspx" username
-read -sp " please enter your preferred password (default Rumleskaft) : " -i "Rumleskaft" password
+read -sp " please enter your preferred password (default Rumleskaft) :" password
 printf "\n"
-read -sp " confirm your preferred password: " -i "Rumleskaft"  password2
+read -sp " confirm your preferred password: "  password2
 printf "\n"
 read -ep " Make ISO bootable via USB: " -i "yes" bootable
 
@@ -94,6 +94,9 @@ if [[ "$password" != "$password2" ]]; then
     echo " your passwords do not match; please restart the script and try again"
     echo
     exit
+fi
+if [[-z "${$password// }"]]
+	password = "Rumleskaft"
 fi
 
 # download the ubunto iso. If it already exists, do not delete in the end.
