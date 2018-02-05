@@ -72,8 +72,6 @@ tmphtml=$tmp/tmphtml
 rm $tmphtml >/dev/null 2>&1
 wget -O $tmphtml 'http://releases.ubuntu.com/' >/dev/null 2>&1
 
-prec=$(fgrep Precise $tmphtml | head -1 | awk '{print $3}')
-trus=$(fgrep Trusty $tmphtml | head -1 | awk '{print $3}')
 xenn=$(fgrep Xenial $tmphtml | head -1 | awk '{print $3}')
 
 
@@ -82,17 +80,8 @@ download_file="ubuntu-$xenn-server-amd64.iso"
 download_location="http://releases.ubuntu.com/$xenn/"
 new_iso_name="ubuntu-$xenn-server-amd64-unattended.iso"
 
-if [ -f /etc/timezone ]; then
-  timezone=`cat /etc/timezone`
-elif [ -h /etc/localtime]; then
-  timezone=`readlink /etc/localtime | sed "s/\/usr\/share\/zoneinfo\///"`
-else
-  checksum=`md5sum /etc/localtime | cut -d' ' -f1`
-  timezone=`find /usr/share/zoneinfo/ -type f -exec md5sum {} \; | grep "^$checksum" | sed "s/.*\/usr\/share\/zoneinfo\///" | head -n 1`
-fi
-
 # ask the user questions about his/her preferences
-read -ep " please enter your preferred timezone: " -i "${timezone}" timezone
+read -ep " please enter your preferred timezone: " -i "Europe/Copenhagen" timezone
 read -ep " please enter your preferred username: " -i "paspx" username
 read -sp " please enter your preferred password: " password
 printf "\n"
@@ -126,7 +115,7 @@ fi
 seed_file="paspx.seed"
 if [[ ! -f $tmp/$seed_file ]]; then
     echo -n " downloading $seed_file: "
-    download "https://kida.paspx.com/ISO/Ubuntu16/raw/master/$seed_file"
+    download "https://raw.githubusercontent.com/PASPX/ubuntu16/master/$seed_file"
 fi
 
 # install required packages
@@ -181,10 +170,10 @@ sed -i -r 's/timeout\s+[0-9]+/timeout 1/g' $tmp/iso_new/isolinux/isolinux.cfg
 # set late command
 
 if [ $ub1604 == "yes" ]; then
-   late_command="apt-install wget; in-target wget --no-check-certificate -O /home/$username/start.sh https://kida.paspx.com/ISO/Ubuntu16/raw/master/start.sh ;\
+   late_command="apt-install wget; in-target wget --no-check-certificate -O /home/$username/start.sh https://raw.githubusercontent.com/PASPX/ubuntu16/master/start.sh ;\
      in-target chmod +x /home/$username/start.sh ;"
 else 
-   late_command="chroot /target wget -O /home/$username/start.sh https://kida.paspx.com/ISO/Ubuntu16/raw/master/start.sh ;\
+   late_command="chroot /target wget -O /home/$username/start.sh https://raw.githubusercontent.com/PASPX/ubuntu16/master/start.sh ;\
      chroot /target chmod +x /home/$username/start.sh ;"
 fi
 
@@ -220,7 +209,7 @@ sed -i "/label install/ilabel autoinstall\n\
 
 echo " creating the remastered iso"
 cd $tmp/iso_new
-(mkisofs -D -r -V "NETSON_UBUNTU" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $tmp/$new_iso_name . > /dev/null 2>&1) &
+(mkisofs -D -r -V "PASPX_UBUNTU" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $tmp/$new_iso_name . > /dev/null 2>&1) &
 spinner $!
 
 # make iso bootable (for dd'ing to  USB stick)
