@@ -83,9 +83,9 @@ new_iso_name="ubuntu-$xenn-server-amd64-unattended.iso"
 # ask the user questions about his/her preferences
 read -ep " please enter your preferred timezone: " -i "Europe/Copenhagen" timezone
 read -ep " please enter your preferred username: " -i "paspx" username
-read -sp " please enter your preferred password: " password
+read -sp " please enter your preferred password (default Rumleskaft) : " -i "Rumleskaft" password
 printf "\n"
-read -sp " confirm your preferred password: " password2
+read -sp " confirm your preferred password: " -i "Rumleskaft"  password2
 printf "\n"
 read -ep " Make ISO bootable via USB: " -i "yes" bootable
 
@@ -172,9 +172,6 @@ sed -i -r 's/timeout\s+[0-9]+/timeout 1/g' $tmp/iso_new/isolinux/isolinux.cfg
 if [ $ub1604 == "yes" ]; then
    late_command="apt-install wget; in-target wget --no-check-certificate -O /home/$username/start.sh https://raw.githubusercontent.com/PASPX/ubuntu16/master/start.sh ;\
      in-target chmod +x /home/$username/start.sh ;"
-else 
-   late_command="chroot /target wget -O /home/$username/start.sh https://raw.githubusercontent.com/PASPX/ubuntu16/master/start.sh ;\
-     chroot /target chmod +x /home/$username/start.sh ;"
 fi
 
 

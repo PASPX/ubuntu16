@@ -108,8 +108,7 @@ ufw allow from 192.168.77.0/24 to any port 22
 ufw enable
 
 #Webmin
-echo "deb http://download.webmin.com/download/repository sarge contrib"
-tee -a /etc/apt/sources.list
+echo "deb http://download.webmin.com/download/repository sarge contrib" | tee -a /etc/apt/sources.list
 wget http://www.webmin.com/jcameron-key.asc
 apt-key add jcameron-key.asc
 apt-get update
