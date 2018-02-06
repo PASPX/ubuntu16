@@ -3,9 +3,14 @@ set -e
 
 # set defaults
 default_hostname="$(hostname)"
-default_domain="netson.local"
-default_puppetmaster="foreman.netson.nl"
+default_domain="paspx.internal"
 tmp="/root/"
+
+#networking defaults 77 and DMZ Networks
+default_c_address="192.168.77"
+default_netmask="255.255.255"
+default_dns_nameservers="$default_c_address.20 $default_c_address.18"
+default_dns_search="paspx.com"
 
 clear
 
@@ -52,6 +57,54 @@ sed -i "s@ubuntu.ubuntu@$fqdn@g" /etc/hosts
 sed -i "s@ubuntu@$hostname@g" /etc/hosts
 hostname "$hostname"
 
+# Update Internet
+# Static IP
+read -ep "Configure Static IP? " -i "yes" staticip
+
+if [[ $staticip == "yes" ]] || [[ $staticip == "y" ]]; then
+	read -ep "Set Default C Address (192.168.77): " -i "$default_c_address" caddress
+	
+	if [[ $caddress  == "94.18.208" ]]; then
+		read -ep "Set Static IP ($caddress.19): " -i "$caddress." ipaddress
+		read -ep "Set Netmask (255.255.255.128): " -i "$default_netmask.128" netmask
+		read -ep "Set Nameservers (Seperate with Space): " -i "$default_dns_nameservers" nameservers
+		read -ep "Set DNS Search: " -i "$default_dns_search" dnssearch
+
+		read -ep "Set Network Address ($caddress.0): " -i "$caddress.0" network
+		read -ep "Set Broadcast (94.18.209.1): " -i "94.18.209.1" broadcast
+		read -ep "Set Gateway ($caddress.1): " -i "$caddress.1" gateway
+	else
+		read -ep "Set Static IP ($caddress.19): " -i "$caddress." ipaddress
+		read -ep "Set Netmask (255.255.255.0): " -i "$default_netmask.0" netmask
+		read -ep "Set Nameservers (Seperate with Space): " -i "$default_dns_nameservers" nameservers
+		read -ep "Set DNS Search: " -i "$default_dns_search" dnssearch
+
+		read -ep "Set Network Address ($caddress.0): " -i "$caddress.0" network
+		read -ep "Set Broadcast ($caddress.255): " -i "$caddress.255" broadcast
+		read -ep "Set Gateway ($caddress.1): " -i "$caddress.1" gateway
+	fi
+fi
+
+echo '' > /etc/network/interfaces
+
+cat >/etc/network/interfaces <<EOL
+source /etc/network/interfaces.d/*
+ 
+auto lo
+iface lo inet loopback
+ 
+auto ens160
+iface ens160 inet static
+	address     ${ipaddress}
+        netmask     ${netmask}
+        network     ${network}
+        broadcast   ${broadcast}
+        gateway     ${gateway}
+        # dns-* options are implemented by the resolvconf package, if installed
+        dns-nameservers ${nameservers}
+        dns-search ${dnssearch}
+EOL
+
 # update repos
 apt-get -y update
 apt-get -y upgrade
@@ -61,44 +114,31 @@ apt-get -y purge
 
 #Install Stuff
 apt-get -y install dnsutils
-apt-get -y install python3-gdbm
 apt-get -y install ufw
-apt-get -y install dosfstools
 apt-get -y install ed
-apt-get -y install telnet
-apt-get -y install powermgmt-base
 apt-get -y install ntfs-3g
 apt-get -y install ubuntu-release-upgrader-core
-apt-get -y install iputils-tracepath
-apt-get -y install python3-update-manager
-apt-get -y install groff-base
-apt-get -y install python3-distupgrade
+#Host Commands
 apt-get -y install bind9-host
+#Traceroute
 apt-get -y install mtr-tiny
 apt-get -y install bash-completion
 apt-get -y install mlocate
-apt-get -y install tcpdump
-apt-get -y install geoip-database
 apt-get -y install install-info
 apt-get -y install irqbalance
 apt-get -y install language-selector-common
 apt-get -y install friendly-recovery
 apt-get -y install command-not-found
 apt-get -y install info
-apt-get -y install hdparm
-apt-get -y install man-db
 apt-get -y install lshw
 apt-get -y install update-manager-core
 apt-get -y install apt-transport-https
 apt-get -y install accountsservice
 apt-get -y install command-not-found-data
-apt-get -y install python3-commandnotfound
 apt-get -y install time
 apt-get -y install ltrace
 apt-get -y install parted
-apt-get -y install popularity-contest
 apt-get -y install strace
-apt-get -y install ftp
 apt-get -y install ubuntu-standard
 apt-get -y install lsof
 
