@@ -3,7 +3,7 @@ d-i debian-installer/language                               string      en_US:en
 d-i debian-installer/country                                string      DK
 d-i debian-installer/locale                                 string      en_DK
 d-i debian-installer/splash                                 boolean     false
-d-i localechooser/supported-locales                         multiselect en_DK.UTF-8
+d-i localechooser/supported-locales                         multiselect en_GB.UTF-8
 d-i pkgsel/install-language-support                         boolean     true
 
 # keyboard selection
