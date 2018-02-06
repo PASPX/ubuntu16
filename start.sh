@@ -63,7 +63,17 @@ read -ep "Configure Static IP? " -i "yes" staticip
 
 if [[ $staticip == "yes" ]] || [[ $staticip == "y" ]]; then
 	read -ep "Set Default C Address (192.168.77): " -i "$default_c_address" caddress
-	
+	echo "Select Network Device"
+	ETH=(`ifconfig -a | sed 's/[ \t].*//;/^$/d'`)
+	select slceth in "${ETH[@]}"; do
+	  case $slceth in
+	    *)
+	      echo "$slceth selected"
+			ethadap=$slceth
+		break
+	      ;;
+	  esac
+	done
 	if [[ $caddress  == "94.18.208" ]]; then
 		read -ep "Set Static IP ($caddress.19): " -i "$caddress." ipaddress
 		read -ep "Set Netmask (255.255.255.128): " -i "$default_netmask.128" netmask
@@ -93,8 +103,8 @@ source /etc/network/interfaces.d/*
 auto lo
 iface lo inet loopback
  
-auto ens160
-iface ens160 inet static
+auto ${ethadap}
+iface ${ethadap} inet static
 	address     ${ipaddress}
         netmask     ${netmask}
         network     ${network}
