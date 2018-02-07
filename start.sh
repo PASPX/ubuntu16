@@ -151,6 +151,7 @@ apt-get -y install parted
 apt-get -y install strace
 apt-get -y install ubuntu-standard
 apt-get -y install lsof
+apt-get -y install openssh-server
 
 #Enable UFW
 ufw allow from 192.168.55.0/24 to any port 22
